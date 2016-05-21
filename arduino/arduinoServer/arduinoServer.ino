@@ -31,10 +31,6 @@
 /* Create a WiFi access point and provide a web server on it. */
 
 #include <ESP8266WiFi.h>
-#include <WiFiClient.h> 
-#include <ESP8266WebServer.h>
-
-#define MAX_SRV_CLIENTS 2
 
 /* Set these to your desired credentials. */
 const char *ssid = "AdamBot";
@@ -46,7 +42,11 @@ void printWiFiStatus();
 
 void setup(void) {
   Serial.begin(115200);
-  WiFi.begin(ssid, password);
+  WiFi.mode(WIFI_AP);
+  WiFi.softAP(ssid, password);
+  IPAddress myIP = WiFi.softAPIP();
+  Serial.print("AP IP address: ");
+  Serial.println(myIP);
 
   // Configure GPIO2 as OUTPUT.
   pinMode(ledPin, OUTPUT);
@@ -56,14 +56,6 @@ void setup(void) {
 }
 
 void loop(void) {
-  // Check if module is still connected to WiFi.
-  if (WiFi.status() != WL_CONNECTED) {
-    while (WiFi.status() != WL_CONNECTED) {
-      delay(500);
-    }
-    // Print the new IP to Serial.
-    printWiFiStatus();
-  }
 
   WiFiClient client = server.available();
 
@@ -82,7 +74,9 @@ void loop(void) {
           Serial.println("LED is now off.");
         }
       }
+      Serial.println(client.status());
     }
+    
     Serial.println("Client disconnected.");
     client.stop();
   }
