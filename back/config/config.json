@@ -1,0 +1,16 @@
+{
+  "server":
+  {
+    "host": "127.0.0.1",
+    "port": "9292"
+  },
+  "arduino":
+  {
+    "host":"192.168.4.1",
+    "port":"81"
+  },
+  "topics":
+  {
+    "webSocket":"WebSocket"
+  }
+}

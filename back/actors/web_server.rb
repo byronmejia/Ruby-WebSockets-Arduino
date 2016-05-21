@@ -7,10 +7,12 @@ module Actors
     include Celluloid
     include Celluloid::Notifications
     include Celluloid::Internals::Logger
+    attr_reader :host
     attr_reader :port
     attr_reader :topic
 
-    def initialize(port = 9292, topic = 'EventMachine')
+    def initialize(host = '127.0.0.1', port = 9292, topic = 'EventMachine')
+      @host = host
       @port = port
       @topic = topic
     end
@@ -21,7 +23,7 @@ module Actors
         trap('TERM') { stop }
         trap('INT')  { stop }
 
-        WebSocket::EventMachine::Server.start(:host => '127.0.0.1', :port => @port) do |ws|
+        WebSocket::EventMachine::Server.start(:host => @host, :port => @port) do |ws|
           ws.onopen do |handshake|
             puts "Client connected with params #{handshake.query}"
             ws.send 'Hello there!'
@@ -56,6 +58,8 @@ module Actors
       puts "\nTerminating WebSocket Server"
       EventMachine.stop
       # If we reached this far, safe to stop everything
+      puts "\nAllowing 5 seconds for actors to close..."
+      sleep(5)
       exit(0)
     end
   end

@@ -1,15 +1,24 @@
-require_relative './client_collection'
-require_relative './web_server'
-require_relative './arduino_controller'
+require 'JSON'
 
-port = 9292
-WebSocketTopic = 'WebSocket'
+require_relative 'actors/client_collection'
+require_relative 'actors/socket_client'
+require_relative 'actors/web_server'
+require_relative 'actors/arduino_controller'
 
-clients_actor = Actors::ClientCollection.new(WebSocketTopic)
-arduino = Actors::ArduinoController.new
-web_actor = Actors::WebServer.new(port, WebSocketTopic)
-web_actor.async.run
-arduino.async.run
+config_file = File.read('config/config.json')
+config = JSON.parse(config_file)
+
+puts config
+
+clients_actor = Actors::ClientCollection.new(
+    config['topics']['webSocket']
+)
+
+web_actor = Actors::WebServer.new(
+    config['server']['host'],
+    config['server']['port'],
+    config['topics']['webSocket']
+).async.run
 
 puts 'Main file loaded, looping till trap'
 loop do
