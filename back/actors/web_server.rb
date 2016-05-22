@@ -25,9 +25,8 @@ module Actors
 
         WebSocket::EventMachine::Server.start(:host => @host, :port => @port) do |ws|
           ws.onopen do |handshake|
-            puts "Client connected with params #{handshake.query}"
+            puts 'Client Connected!'
             ws.send 'Hello there!'
-            puts ws
             data = {}
             data['ws'] = ws
             data['type'] = 'connect'
@@ -40,6 +39,7 @@ module Actors
             data = {}
             data['ws'] = ws
             data['type'] = 'message'
+            data['msg'] = msg
             publish @topic, data
           end
 

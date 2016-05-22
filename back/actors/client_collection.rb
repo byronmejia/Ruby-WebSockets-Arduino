@@ -2,6 +2,16 @@ require 'celluloid/current'
 require 'celluloid/autostart'
 
 module Actors
+  MSG_TYPE = 'messageType'
+
+  CMD_TGL = 'toggle'
+  CMD_ON = 'on'
+  CMD_OFF = 'off'
+
+  MSG_CMD = 'command'
+
+  PRT_LED = 'led'
+
   class ClientCollection
     include Celluloid
     include Celluloid::Notifications
@@ -21,13 +31,13 @@ module Actors
     end
 
     def new_message(topic, data)
-      info "ClientCollection: #{topic}: #{data}"
       case data['type']
         when 'connect'
           # Do Connect
           @clients << data['ws']
         when 'message'
           # Do Message received
+          broadcast_command(data)
         when 'disconnect'
           # Do disconnect
           @clients.delete(data['ws'])
@@ -35,9 +45,19 @@ module Actors
     end
 
     def new_broadcast(topic, data)
-      info "ClientCollection: #{topic}: #{data}"
       @clients.each do |ws|
         ws.send data['text']
+      end
+    end
+
+    def broadcast_command(data)
+      hash = JSON.parse(data['msg'])
+      puts hash
+      case hash[MSG_TYPE]
+        when MSG_CMD
+          publish 'command', hash
+        else
+          # type code here
       end
     end
   end

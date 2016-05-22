@@ -1,16 +1,35 @@
+// -------------------- Constants --------------------
+const CMD_TGL = 'toggle';
+const CMD_ON = 'H';
+const CMD_OFF = 'L';
+
+const MSG_CMD = 'command';
+const MSG_CHAT = 'message';
+
+const PRT_LED = 'led';
 // -------------------- Functions --------------------
 
 function CommandMessage( option ) {
-    this.command = option.command
+    this.messageType = option.messageType || MSG_CMD;
+    this.command = option.command || CMD_TGL;
+    this.part = option.part || PRT_LED;
+}
+
+function ChatMessage( option ) {
+    this.messageType = option.messageType || MSG_CHAT;
+    this.text = option.text || 'Hello World';
 }
 
 function MessageFactory() {
-    MessageFactory.prototype.createPart  = function createMessage( options ) {
+    MessageFactory.prototype.createMsg  = function createMessage( options ) {
         var parentClass = null;
 
         switch(options.messageType){
-            case 'command':
-                parentClass = CommandMessage
+            case MSG_CMD:
+                parentClass = CommandMessage;
+                break;
+            case MSG_CHAT:
+                parentClass = ChatMessage;
                 break;
             default:
                 break;
@@ -55,3 +74,42 @@ exampleSocket.onmessage = function (event) {
         }
     }
 };
+
+function toggleLED() {
+    var ledMessage = msgFactory.createMsg({
+        messageType : MSG_CMD,
+        command : CMD_TGL,
+        part : PRT_LED
+    } );
+    console.log(ledMessage)
+    exampleSocket.send(JSON.stringify(ledMessage))
+}
+
+function ledON() {
+    var ledMessage = msgFactory.createMsg({
+        messageType : MSG_CMD,
+        command : CMD_ON,
+        part : PRT_LED
+    } );
+    console.log(ledMessage)
+    exampleSocket.send(JSON.stringify(ledMessage))
+}
+
+function ledOFF() {
+    var ledMessage = msgFactory.createMsg({
+        messageType : MSG_CMD,
+        command : CMD_OFF,
+        part : PRT_LED
+    } );
+    console.log(ledMessage);
+    exampleSocket.send(JSON.stringify(ledMessage))
+}
+
+function sendChat(text) {
+    var chat = msgFactory.createMsg({
+        messageType : MSG_CHAT,
+        text : text
+    } );
+    console.log(chat);
+    exampleSocket.send(JSON.stringify(chat))
+}
