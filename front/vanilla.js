@@ -1,4 +1,27 @@
-var exampleSocket = new WebSocket("ws://localhost:9292");
+// -------------------- Functions --------------------
+
+function CommandMessage( option ) {
+    this.command = option.command
+}
+
+function MessageFactory() {
+    MessageFactory.prototype.createPart  = function createMessage( options ) {
+        var parentClass = null;
+
+        switch(options.messageType){
+            case 'command':
+                parentClass = CommandMessage
+                break;
+            default:
+                break;
+        }
+
+        if(parentClass === null) return false;
+
+        return new parentClass(options);
+
+    }
+}
 
 function getRandomColor() {
     var letters = '0123456789ABCDEF'.split('');
@@ -9,6 +32,13 @@ function getRandomColor() {
     return color;
 }
 
+// -------------------- Variables --------------------
+
+var exampleSocket = new WebSocket("ws://localhost:9292");
+var msgFactory = new MessageFactory();
+
+
+// -------------------- Events --------------------
 exampleSocket.onmessage = function (event) {
     var element = document.createElement("div");
     element.className = "msg";
